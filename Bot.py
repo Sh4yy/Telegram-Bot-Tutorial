@@ -16,7 +16,10 @@ class Bot:
         )
         
         result.raise_for_status()
-        return result.json()['result']
+        result = result.json()['result']
+        
+        print(f'This is {result["username"]}')
+        return result
     
     def send_message(self, chat_id, text):
         """
@@ -80,10 +83,31 @@ class Bot:
         )
         
 
-"""
-first call
-1, 2, 3, 4
+class UpdateHandler:
 
-second call (offset =  4 + 1)
-5, 6, 7, 8
-"""
+    def __init__(self, bot, timeout=5):
+        self._bot = bot
+        self._callback = None
+        self._offset = None
+        self._timeout = timeout
+        
+    def register(self, callback):
+        """ register a new callback function """
+        self._callback = callback
+    
+    def start_polling(self):    
+        while True:
+            self._long_poll()
+            
+    def _long_poll(self):
+        
+        updates = self._bot.get_updates(
+            offset=self._offset,
+            timeout=self._timeout
+        )
+        
+        for update in updates:
+            self._callback(update)
+            self._offset = update['update_id'] + 1
+            
+    
