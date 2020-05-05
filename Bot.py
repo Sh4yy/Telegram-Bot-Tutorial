@@ -37,7 +37,6 @@ class Bot:
         )
         
         result.raise_for_status()
-        pprint(result)
         
     def get_updates(self, offset=None, limit=10, timeout=5):
         """
@@ -90,6 +89,7 @@ class UpdateHandler:
         self._callback = None
         self._offset = None
         self._timeout = timeout
+        self._bot.get_me()
         
     def register(self, callback):
         """ register a new callback function """
@@ -107,7 +107,7 @@ class UpdateHandler:
         )
         
         for update in updates:
-            self._callback(update)
+            self._callback(self._bot, update)
             self._offset = update['update_id'] + 1
             
     
