@@ -33,15 +33,57 @@ class Bot:
             }
         )
         
+        result.raise_for_status()
         pprint(result)
+        
+    def get_updates(self, offset=None, limit=10, timeout=5):
+        """
+        used to receive updates using long polling
+        :param offset: starting update id
+        :param limit: number of results
+        :param timeout: long polling timeout (sec)
+        :return: [Updates]
+        """
+        
+        params = {
+            'limit': limit,
+            'timeout': timeout
+        }
+        
+        if offset is not None:
+            params['offset'] = offset
+        
+        result = self._get_request(
+            method='getUpdates',
+            params=params,
+            timeout=timeout + 1
+        )
+        
+        result.raise_for_status()
+        return result.json().get('result')
     
-    def _get_request(self, method):
+    def _get_request(self, method, params=None, timeout=5):
         
         url = self._base_url + method
-        return requests.get(url=url)
+        return requests.get(
+            url=url,
+            params=params,
+            timeout=timeout
+        )
     
     def _post_request(self, method, params=None):
         
         url = self._base_url + method
-        return requests.post(url=url, params=params)
+        return requests.post(
+            url=url,
+            params=params
+        )
         
+
+"""
+first call
+1, 2, 3, 4
+
+second call (offset =  4 + 1)
+5, 6, 7, 8
+"""
